@@ -31,7 +31,7 @@ jobs:
           sleep ${DELAY}m
 
       - name: Execute Sync Engine
-        run: npx ts-node index.ts
+        run: npx tsx index.ts
 
       - name: Commit and Push Changes
         run: |
