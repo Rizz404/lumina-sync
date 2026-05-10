@@ -1,0 +1,42 @@
+name: Lumina-Sync Engine
+
+on:
+  schedule:
+    # * Berjalan setiap 6 jam (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: "0 */6 * * *"
+  workflow_dispatch: # * Biar bisa jalain manual
+
+jobs:
+  build-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Apply Random Jitter
+        # * Bakal tidur random 1-120 menit
+        # * jadi commit tidak selalu tepat di menit ke-0.
+        run: |
+          DELAY=$(( (RANDOM % 120) + 1 ))
+          echo "Waiting for $DELAY minutes before syncing..."
+          sleep ${DELAY}m
+
+      - name: Execute Sync Engine
+        run: npx ts-node index.ts
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "Lumina-Bot"
+          git config --global user.email "bot@lumina-sync.local"
+          git add vault.json
+          # Hanya commit jika ada perubahan file
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(sync): update vault [$(date)]" && git push)
