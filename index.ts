@@ -34,6 +34,8 @@ async function syncData() {
     console.log("Data ETH berhasil di-sync!");
   } catch (error) {
     console.error("Ada error bang:", error);
+    // * Biar step di workflow gagal jelas, bukan diam-diam sukses
+    process.exit(1);
   }
 }
 
